@@ -198,7 +198,7 @@ This process allows you to access the Nexus admin password stored within the con
 
 ```bash
 #!/bin/bash
-
+sudo apt update && sudo apt upgrade -y
 # Install OpenJDK 17 JRE Headless
 sudo apt install openjdk-17-jre-headless -y
 
