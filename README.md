@@ -1,70 +1,68 @@
-# Getting Started with Create React App
+# **First step:**
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+#  Setup K8-Cluster using kubeadm [K8 Version-->1.28.1]
 
-## Available Scripts
+### 1. Update System Packages [On Master & Worker Node]
 
-In the project directory, you can run:
+```bash
+sudo apt-get update
+```
 
-### `npm start`
+### 2. Install Docker[On Master & Worker Node]
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+```bash
+sudo apt install docker.io -y
+sudo chmod 666 /var/run/docker.sock
+```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### 3. Install Required Dependencies for Kubernetes[On Master & Worker Node]
 
-### `npm test`
+```bash
+sudo apt-get install -y apt-transport-https ca-certificates curl gnupg
+sudo mkdir -p -m 755 /etc/apt/keyrings
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### 4. Add Kubernetes Repository and GPG Key[On Master & Worker Node]
 
-### `npm run build`
+```bash
+curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### 5. Update Package List[On Master & Worker Node]
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```bash
+sudo apt update
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### 6. Install Kubernetes Components[On Master & Worker Node]
 
-### `npm run eject`
+```bash
+sudo apt install -y kubeadm=1.28.1-1.1 kubelet=1.28.1-1.1 kubectl=1.28.1-1.1
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### 7. Initialize Kubernetes Master Node [On MasterNode]
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```bash
+sudo kubeadm init --pod-network-cidr=10.244.0.0/16
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### 8. Configure Kubernetes Cluster [On MasterNode]
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+```bash
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+```
 
-## Learn More
+### 9. Deploy Networking Solution (Calico) [On MasterNode]
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```bash
+kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### 10. Deploy Ingress Controller (NGINX) [On MasterNode]
 
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+```bash
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.49.0/deploy/static/provider/baremetal/deploy.yaml
+```
