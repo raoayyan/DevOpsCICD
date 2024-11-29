@@ -275,3 +275,12 @@ Then, you can run the script using:
 ```bash
 ./install_docker.sh
 ```
+
+
+
+**On master Node we have to create a service acccount and then role and assign that role to that account we created and generate a token using  yaml file that token will be used to connect with  k8 cluster**
+![image](https://github.com/user-attachments/assets/8d8aa187-efee-419e-9928-9e87a6149e95)
+ 
+**And to get server end pointt in master  node goto cd ~/.kube > config cat it and yyou will find server endpoint unser attribute server**
+![image](https://github.com/user-attachments/assets/f09a7be3-4642-4c96-b5bd-cb34f5a41aa8)
+
